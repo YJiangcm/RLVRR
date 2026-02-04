@@ -1,0 +1,53 @@
+#!/bin/bash
+# run on 8×A800(80GB)
+
+python  openrlhf/cli/train_ppo_ray.py \
+   --reward_num_nodes 0 \
+   --reward_num_gpus_per_node 0 \
+   --ref_num_nodes 1 \
+   --ref_num_gpus_per_node 8 \
+   --actor_num_nodes 1 \
+   --actor_num_gpus_per_node 8 \
+   --critic_num_nodes 0 \
+   --critic_num_gpus_per_node 0 \
+   --vllm_num_engines 4 \
+   --vllm_tensor_parallel_size 2 \
+   --vllm_gpu_memory_utilization 0.6 \
+   --colocate_all_models \
+   --pretrain Qwen/Qwen2.5-3B \
+   --remote_rm_url openrlhf/reward_tools/reward_fn.py \
+   --save_path results/qwen2.5_3b_base_grpo_rlvrr \
+   --load_checkpoint \
+   --save_steps 2 \
+   --max_ckpt_num 1 \
+   --ckpt_path results/qwen2.5_3b_base_grpo_rlvrr \
+   --micro_train_batch_size 4 \
+   --train_batch_size 128 \
+   --micro_rollout_batch_size 32 \
+   --rollout_batch_size 1024 \
+   --temperature 1.0 \
+   --n_samples_per_prompt 8 \
+   --max_epochs 1 \
+   --num_episodes 20 \
+   --prompt_max_len 1024 \
+   --max_samples 100000 \
+   --generate_max_len 1024 \
+   --lambd 0.95 \
+   --gamma 1.0 \
+   --use_kl_loss \
+   --init_kl_coef 0.01 \
+   --advantage_estimator group_norm \
+   --zero_stage 3 \
+   --bf16 \
+   --actor_learning_rate 5e-7 \
+   --prompt_data data/sampled_dataset_keypoint_keywords_style_multi_ref.json \
+   --input_key input \
+   --label_key label \
+   --gradient_checkpointing \
+   --flash_attn \
+   --packing_samples \
+   --vllm_sync_backend nccl \
+   --enforce_eager \
+   --vllm_enable_sleep \
+   --use_wandb true
+#    --adam_offload
